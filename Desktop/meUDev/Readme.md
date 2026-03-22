@@ -39,28 +39,28 @@ Condition-based memory resurfacing camera app built with Expo React Native and E
 npm install
 ```
 
-## Expo Dev Client setup
+## Expo Dev Client 설정
 
 ```bash
 npx expo prebuild
 npx expo run:ios
 ```
 
-- This creates and installs a custom dev client on simulator/device.
-- For real iPhone testing, connect iPhone and run from Xcode once, then:
+- 시뮬레이터/기기에 커스텀 Dev Client를 생성하고 설치합니다.
+- 실제 아이폰 테스트는 아이폰을 연결하고 Xcode에서 1회 실행 후:
 
 ```bash
 npm run start
 ```
 
-- Scan QR from the installed dev client app.
-- Fast Refresh works with `expo start --dev-client`.
+- 설치된 Dev Client 앱에서 QR을 스캔해 연결합니다.
+- `expo start --dev-client`로 Fast Refresh를 사용할 수 있습니다.
 
-## iOS Run Guide (Recommended)
+## iOS 실행 가이드 (권장)
 
-Follow this flow for stable iOS development with Expo Dev Client.
+Expo Dev Client 기준으로 가장 안정적인 iOS 실행 순서입니다.
 
-### 1) First-time setup
+### 1) 최초 1회 설정
 
 ```bash
 cd /Users/iseonghyo/Desktop/meUDev
@@ -68,62 +68,62 @@ npm install
 npx expo prebuild
 ```
 
-### 2) Build and install iOS Dev Client
+### 2) iOS Dev Client 빌드 및 설치
 
-Simulator:
+시뮬레이터:
 
 ```bash
 npm run ios
 ```
 
-Real iPhone (first build):
+실기기 iPhone (최초 빌드):
 
-1. Connect iPhone to Mac with cable.
-2. Open `ios/MU.xcworkspace` in Xcode.
-3. Select your Team in Signing & Capabilities.
-4. Use a unique Bundle Identifier if needed.
-5. Choose your iPhone as target and press Run.
+1. 아이폰을 Mac에 케이블로 연결합니다.
+2. Xcode에서 `ios/MU.xcworkspace`를 엽니다.
+3. `Signing & Capabilities`에서 Team을 선택합니다.
+4. 필요하면 Bundle Identifier를 고유하게 변경합니다.
+5. 타겟을 아이폰으로 선택하고 Run을 누릅니다.
 
-After first successful install, you can usually continue from CLI:
+최초 설치가 성공하면 이후에는 보통 CLI로 계속 진행할 수 있습니다:
 
 ```bash
 npm run ios -- --device
 ```
 
-### 3) Start Metro server for Dev Client
+### 3) Dev Client용 Metro 서버 실행
 
 ```bash
 npm run start
 ```
 
-Then open the installed Dev Client app on iPhone and connect via QR or local network.
+아이폰에서 설치된 Dev Client 앱을 열고 QR 또는 로컬 네트워크로 연결합니다.
 
-### 4) Daily development loop
+### 4) 일일 개발 루프
 
-1. Run `npm run start`
-2. Open Dev Client app on iPhone
-3. Edit code and use Fast Refresh
+1. `npm run start` 실행
+2. 아이폰에서 Dev Client 앱 열기
+3. 코드 수정 후 Fast Refresh로 확인
 
-### 5) When native config changes
+### 5) 네이티브 설정이 바뀐 경우
 
-If you add/remove native modules or change native plugin settings:
+네이티브 모듈 추가/삭제 또는 플러그인 설정 변경 시:
 
 ```bash
 npx expo prebuild
 npm run ios
 ```
 
-## iOS Troubleshooting
+## iOS 문제 해결
 
-- Signing error in Xcode:
-  - Set Team and Bundle Identifier again.
-- Device not detected:
-  - Unlock phone, trust computer, reconnect cable.
-- Dev Client cannot load bundle:
-  - Ensure Mac and iPhone are on same network.
-  - Restart Metro with `npm run start -- --clear`.
-- Build cache issues:
-  - Clean build folder in Xcode and rebuild.
+- Xcode 서명(Signing) 오류:
+  - Team과 Bundle Identifier를 다시 설정합니다.
+- 기기 인식 실패:
+  - 아이폰 잠금 해제, 컴퓨터 신뢰 허용, 케이블 재연결을 확인합니다.
+- Dev Client 번들 로드 실패:
+  - Mac과 아이폰이 같은 네트워크인지 확인합니다.
+  - `npm run start -- --clear`로 Metro를 재시작합니다.
+- 빌드 캐시 문제:
+  - Xcode에서 Clean Build Folder 후 다시 빌드합니다.
 
 ## Run
 
