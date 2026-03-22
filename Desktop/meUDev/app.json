@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "MU",
+    "slug": "mu-memory-unlock",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.mu.memoryunlock",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Capture moments to unlock memories later.",
+        "NSLocationWhenInUseUsageDescription": "Location is used to resurface memories when you revisit places."
+      }
+    },
+    "android": {
+      "edgeToEdgeEnabled": true,
+      "package": "com.mu.memoryunlock",
+      "permissions": [
+        "CAMERA",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ]
+    },
+    "plugins": [
+      "expo-dev-client",
+      "expo-camera",
+      "expo-location"
+    ]
+  }
+}
