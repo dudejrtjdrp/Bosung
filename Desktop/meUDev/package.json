@@ -5,6 +5,8 @@
   "main": "expo/AppEntry",
   "scripts": {
     "start": "expo start --dev-client",
+    "start:go": "expo start --go --lan",
+    "start:go:tunnel": "expo start --go --tunnel",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "prebuild": "expo prebuild",

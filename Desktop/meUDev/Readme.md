@@ -131,6 +131,23 @@ npm run ios
 npm run start
 ```
 
+### Expo Go로 빠르게 아이폰 확인하기
+
+Xcode 없이 바로 확인할 때:
+
+```bash
+npm run start:go
+```
+
+- 아이폰의 Expo Go 앱에서 QR 스캔
+- Mac과 iPhone은 같은 Wi-Fi 권장
+
+네트워크 제약이 있으면 터널 모드:
+
+```bash
+npm run start:go:tunnel
+```
+
 ## Auto commit (Conventional Commits)
 
 ```bash
