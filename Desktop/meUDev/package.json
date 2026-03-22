@@ -8,7 +8,9 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "prebuild": "expo prebuild",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "commit:auto": "node scripts/auto-commit.mjs",
+    "commit:checkpoint": "node scripts/auto-commit.mjs chore react-native checkpoint"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",

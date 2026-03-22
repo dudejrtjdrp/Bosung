@@ -62,6 +62,21 @@ npm run start
 npm run start
 ```
 
+## Auto commit (Conventional Commits)
+
+```bash
+npm run commit:auto -- feat react-native add camera UX polish
+```
+
+- Format: `<type>(<scope>): <description>`
+- Example scope: `react-native`, `ios`, `android`, `camera`, `memory`
+
+Quick checkpoint commit:
+
+```bash
+npm run commit:checkpoint
+```
+
 ## Notes
 
 - This project intentionally focuses on MVP flow:
