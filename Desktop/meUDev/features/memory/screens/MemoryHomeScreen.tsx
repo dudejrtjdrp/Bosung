@@ -72,7 +72,7 @@ const ProgressRing = ({
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-export const MemoryHomeScreen = () => {
+export const MemoryHomeScreen = ({ setPagerScrollEnabled }: { setPagerScrollEnabled?: (v: boolean) => void }) => {
     // 전체 fade-in 애니메이션
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const scaleAnim = useRef(new Animated.Value(0.96)).current;
@@ -293,7 +293,7 @@ export const MemoryHomeScreen = () => {
   const ORB_GAP = 18;
   const ORB_VISIBLE = 3; // 중앙+양옆
 
-  const renderOrb = (capsule, idx) => {
+  const renderOrb = (capsule: DisplayCapsule, idx: number) => {
     const inputRange = [
       (idx - 1) * (ORB_SIZE + ORB_GAP),
       idx * (ORB_SIZE + ORB_GAP),
@@ -310,7 +310,7 @@ export const MemoryHomeScreen = () => {
       extrapolate: 'clamp',
     });
     // 중앙 오브만 zIndex 1, 나머지 0
-    const centerIdx = Math.round((scrollX.__getValue() || 0) / (ORB_SIZE + ORB_GAP));
+    const centerIdx = Math.round(((scrollX as any).__getValue?.() || 0) / (ORB_SIZE + ORB_GAP));
     const isCenter = idx === centerIdx;
     // shadowRadius도 중앙만 10, 나머지 2
     const shadowRadius = isCenter ? 10 : 2;
