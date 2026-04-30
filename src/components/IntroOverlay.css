@@ -1,0 +1,62 @@
+.intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 950;
+  display: grid;
+  place-items: center;
+  pointer-events: auto;
+  background: radial-gradient(circle at 50% 35%, rgba(6, 8, 12, 0.24), rgba(6, 8, 12, 0.52));
+}
+
+.intro-overlay__card {
+  width: min(440px, calc(100vw - 40px));
+  padding: 24px 24px 22px;
+  border-radius: 20px;
+  background: rgba(10, 14, 20, 0.88);
+  color: #fff;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(12px);
+  text-align: center;
+}
+
+.intro-overlay__eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.62);
+  margin-bottom: 10px;
+}
+
+.intro-overlay__title {
+  margin: 0 0 10px;
+  font-size: clamp(24px, 4vw, 34px);
+  line-height: 1.08;
+}
+
+.intro-overlay__copy {
+  margin: 0 0 18px;
+  color: rgba(255, 255, 255, 0.78);
+  line-height: 1.55;
+  font-size: 14px;
+}
+
+.intro-overlay__button {
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 18px;
+  color: #111;
+  font-weight: 700;
+  cursor: pointer;
+  background: linear-gradient(90deg, #ffd24d, #ffb347);
+  box-shadow: 0 10px 20px rgba(255, 191, 71, 0.28);
+  transition: transform 160ms ease, opacity 160ms ease;
+}
+
+.intro-overlay__button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.intro-overlay__button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}

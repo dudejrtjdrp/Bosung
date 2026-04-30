@@ -1,0 +1,95 @@
+.tour-progress {
+  position: fixed;
+  left: 20px;
+  right: 20px;
+  top: 20px;
+  z-index: 65;
+  margin: 0 auto;
+  width: min(520px, calc(100vw - 40px));
+  padding: 14px 16px 12px;
+  border-radius: 16px;
+  background: rgba(10, 14, 20, 0.78);
+  backdrop-filter: blur(12px);
+  color: #fff;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-10px) scale(0.98);
+  transition: opacity 240ms ease, transform 240ms ease;
+}
+
+.tour-progress--active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.tour-progress__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.tour-progress__label {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.tour-progress__count {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.tour-progress__title {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.tour-progress__bar {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  margin-bottom: 12px;
+}
+
+.tour-progress__bar-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ffd24d, #ff9f3f);
+  transition: width 240ms ease;
+  box-shadow: 0 0 14px rgba(255, 173, 67, 0.32);
+}
+
+.tour-progress__dots {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+}
+
+.tour-progress__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.22);
+  transition: transform 220ms ease, opacity 220ms ease, background 220ms ease, box-shadow 220ms ease;
+  opacity: 0.7;
+}
+
+.tour-progress__dot--done {
+  background: rgba(255, 210, 77, 0.65);
+  opacity: 0.9;
+}
+
+.tour-progress__dot--current {
+  background: #ffd24d;
+  opacity: 1;
+  transform: scale(1.35);
+  box-shadow: 0 0 0 4px rgba(255, 210, 77, 0.14);
+}

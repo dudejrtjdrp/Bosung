@@ -1,0 +1,64 @@
+.story-tour-controls {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  z-index: 60;
+  width: min(340px, calc(100vw - 40px));
+  pointer-events: auto;
+}
+
+.story-tour-controls__idle,
+.story-tour-controls__active {
+  padding: 16px 16px 14px;
+  border-radius: 16px;
+  background: rgba(12, 16, 22, 0.9);
+  color: #fff;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(12px);
+}
+
+.story-tour-controls__eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 8px;
+}
+
+.story-tour-controls__title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.story-tour-controls__text {
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 14px;
+}
+
+.story-tour-controls__actions {
+  display: flex;
+  gap: 10px;
+}
+
+.story-tour-controls__button {
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-weight: 700;
+  cursor: pointer;
+  color: #111;
+  background: linear-gradient(90deg, #ffd24d, #ffb347);
+}
+
+.story-tour-controls__button--secondary {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.story-tour-controls__button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}

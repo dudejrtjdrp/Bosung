@@ -1,0 +1,23 @@
+[
+  {
+    "id": "cactus-top",
+    "position": [-1.5, 2, -2],
+    "title": "Cactus Top",
+    "description": "Cactus 상단부 - Spines 영역",
+    "media": null
+  },
+  {
+    "id": "cactus-middle",
+    "position": [-2.5, 0.5, -1],
+    "title": "Cactus Body",
+    "description": "Cactus 중앙부 - Main body",
+    "media": null
+  },
+  {
+    "id": "cactus-base",
+    "position": [-3, -1.5, 1],
+    "title": "Cactus Base",
+    "description": "Cactus 하단부 - Base area",
+    "media": null
+  }
+]

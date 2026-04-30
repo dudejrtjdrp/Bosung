@@ -1,0 +1,15 @@
+.hotspot-marker__tooltip {
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(10, 10, 14, 0.82);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.22);
+  opacity: 0;
+  transform: translate3d(0, -4px, 0) scale(0.98);
+  transition: opacity 140ms ease, transform 140ms ease;
+  will-change: transform, opacity;
+}

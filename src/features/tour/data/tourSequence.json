@@ -1,0 +1,20 @@
+[
+  {
+    "hotspotId": "cactus-top",
+    "offset": [0.8, 0.6, 0.8],
+    "duration": 1.5,
+    "delay": 1200
+  },
+  {
+    "hotspotId": "cactus-middle",
+    "offset": [1, 0.5, 1],
+    "duration": 1.5,
+    "delay": 1500
+  },
+  {
+    "hotspotId": "cactus-base",
+    "offset": [1.2, 0.4, 1.2],
+    "duration": 1.5,
+    "delay": 1500
+  }
+]
