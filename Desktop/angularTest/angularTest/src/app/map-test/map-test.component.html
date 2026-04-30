@@ -1,0 +1,27 @@
+<div class="dashboardTable">
+  <div class="dashboardFilter">
+    <mat-icon class="filterIcon">filter_list</mat-icon>
+    <button>필터</button>
+  </div>
+  <div class="mockTable">
+    <div class="tableCategory">
+      <div class="productName">상품명</div>
+      <div>상품 설명<hr></div>
+      <div>카테고리<hr></div>
+      <div>가격<hr></div>
+      <div>재고<hr></div>
+    </div>
+    <div class="tableContexts">
+      <div class="tableContext" *ngFor="let book of books">
+          <div class="productName">
+            <img src={{book.url}} alt="">
+            {{book.name}}
+          </div>
+          <div>{{book.description}}</div>
+          <div>{{book.category}}</div>
+          <div>{{book.price}}</div>
+          <div>{{book.count}}</div>
+        </div>
+      </div>
+    </div>
+  </div>
