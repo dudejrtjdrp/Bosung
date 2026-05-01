@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { Points, PointMaterial } from '@react-three/drei'
+import { Points, PointMaterial, OrbitControls } from '@react-three/drei'
 import pako from 'pako'
 
 // Lightweight SPZ viewer: fetches a .spz (gzip), decompresses, scans for a long
@@ -123,7 +123,7 @@ function PointsMesh({ positions }) {
   const posAttr = useMemo(() => positions, [positions])
   return (
     <Points positions={posAttr} limit={count} range={count}>
-      <PointMaterial size={0.02} vertexColors={false} />
+      <PointMaterial size={0.06} vertexColors={false} />
     </Points>
   )
 }
@@ -142,6 +142,7 @@ export default function SPZViewer({ url = '/models/test.spz' }) {
         <ambientLight />
         <pointLight position={[10, 10, 10]} />
         {positions && <PointsMesh positions={positions} />}
+        <OrbitControls makeDefault />
       </Canvas>
     </div>
   )
