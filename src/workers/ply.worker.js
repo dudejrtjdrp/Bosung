@@ -272,9 +272,9 @@ self.onmessage = async (e) => {
     
     // Quick validation: find 'ply' signature. it may not be at byte 0 (container wrapper).
     let plyOffsetInView = -1
-    const headerLower = headerEnd.toLowerCase()
+    const headerLower = headerDecoded.toLowerCase()
     if (headerLower.includes('ply')) {
-      plyOffsetInView = headerEnd.toLowerCase().indexOf('ply')
+      plyOffsetInView = headerDecoded.toLowerCase().indexOf('ply')
     } else {
       // search whole buffer for ASCII 'ply' sequence
       const needle = [0x70, 0x6c, 0x79] // 'p','l','y'
@@ -296,15 +296,23 @@ self.onmessage = async (e) => {
       // slice the processedBuffer from the ply signature forward for parsing
       processedBuffer = processedBuffer.slice(plyOffsetInView)
       view = new Uint8Array(processedBuffer)
+      // Re-decode header from sliced buffer
+      try {
+        headerDecoded = new TextDecoder().decode(view)
+      } catch (e) {
+        headerDecoded = new TextDecoder().decode(view.slice(0, Math.min(1024 * 1024, view.length)))
+      }
+      const newHeaderIdx = headerDecoded.toLowerCase().indexOf('end_header')
+      headerText = newHeaderIdx >= 0 ? headerDecoded.slice(0, newHeaderIdx + 'end_header'.length) : headerDecoded
     } else if (plyOffsetInView === -1) {
-      const snippet = headerEnd.slice(0, 256)
+      const snippet = headerDecoded.slice(0, 256)
       throw new Error(`Not a PLY file — 'ply' signature not found. Snippet: ${snippet.replace(/\n/g, "\\n").slice(0,200)}`)
     }
 
     let parsed
-    if (headerText.includes('binary')) {
+    if (headerText.toLowerCase().includes('binary')) {
       console.log('[Worker] 🔄 Parsing BINARY PLY...')
-      parsed = parsePLYBinary(arrayBuffer, headerText, 2) // 50% sampling
+      parsed = parsePLYBinary(processedBuffer, headerText, 2) // 50% sampling
     } else {
       console.log('[Worker] 🔄 Parsing ASCII PLY...')
       const text = new TextDecoder().decode(view)
