@@ -5,7 +5,7 @@
   ],
   "routes": [
     { "src": "/assets/.*", "dest": "/assets/$1" },
-    { "src": "/.*\\.(js|css|wasm|woff|woff2|ttf|eot|svg|png|jpg|jpeg|gif|webp)$", "dest": "/$0" },
+    { "src": "/.*\\.(js|css|json|wasm|woff|woff2|ttf|eot|svg|png|jpg|jpeg|gif|webp|ply)$", "dest": "/$0" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
