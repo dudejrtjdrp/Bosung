@@ -1,7 +1,7 @@
 [
   {
     "id": "cactus",
-    "url": "/models/cactus_splat3_30kSteps_142k_splats.ply",
+    "url": "/models/test.spz",
     "center": [0, 0, 0],
     "radius": 5.0,
     "lod": 0
