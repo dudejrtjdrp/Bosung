@@ -49,7 +49,7 @@ function createMaterial({ sizeFactor = 1.0, sharpness = 3.0, opacity = 1.0 }) {
   })
 }
 
-export default function SplatLOD({ tilesUrl = '/data/tiles.json', maxConcurrent = 2, sizeFactor = 1.0, manager, reducedGpu = false }) {
+export default function SplatLOD({ tilesUrl = '/data/tiles.json', maxConcurrent = 2, sizeFactor = 1.0, manager, reducedGpu = false, fileMode = 'ply' }) {
   const { camera, scene } = useThree()
   const [tiles, setTiles] = useState([])
   const tilesRef = useRef(new Map())
@@ -69,7 +69,18 @@ export default function SplatLOD({ tilesUrl = '/data/tiles.json', maxConcurrent 
       .then(data => {
         if (mounted) {
           console.log('✅ Tiles loaded:', data.length, 'tiles')
-          setTiles(data)
+          // If fileMode requests SPZ, map .ply urls to .spz (or use id-specific mapping)
+          const mapped = data.map(t => {
+            const copy = { ...t }
+            if (fileMode === 'spz') {
+              // Prefer explicit test.spz if present in models, otherwise swap extension
+              if (copy.url && copy.url.endsWith('.ply')) {
+                copy.url = copy.url.replace(/\.ply$/, '.spz')
+              }
+            }
+            return copy
+          })
+          setTiles(mapped)
         }
       })
       .catch(err => {

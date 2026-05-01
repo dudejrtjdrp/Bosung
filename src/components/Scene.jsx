@@ -92,7 +92,7 @@ const Scene = forwardRef(function Scene(props, ref) {
     <>
       <ambientLight intensity={0.6} />
       <directionalLight position={[5, 10, 5]} intensity={1} castShadow />
-      <SplatLOD tilesUrl="/data/tiles.json" sizeFactor={props.splatSizeFactor ?? 1.0} reducedGpu={!!props.reducedGpu} maxConcurrent={props.splatMaxConcurrent ?? 2} manager={props.loadingManager} />
+      <SplatLOD tilesUrl="/data/tiles.json" sizeFactor={props.splatSizeFactor ?? 1.0} reducedGpu={!!props.reducedGpu} maxConcurrent={props.splatMaxConcurrent ?? 2} manager={props.loadingManager} fileMode={props.fileMode ?? 'ply'} />
       <HotspotLayer hotspots={props.hotspots} onSelect={handleHotspotClick} disabled={!props.interactionsEnabled || tour.isActive || props.xrPresenting} />
       <OrbitControls
         ref={controlsRef}

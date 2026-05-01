@@ -22,6 +22,7 @@ export default function App() {
   const [introStarted, setIntroStarted] = useState(false)
   const [introFinished, setIntroFinished] = useState(false)
   const [tourState, setTourState] = useState({ active: false, phase: 'idle', currentIndex: -1, currentStep: null, total: tourSequence.length })
+  const [fileMode, setFileMode] = useState('ply') // 'ply' or 'spz'
   const [xrPresenting, setXrPresenting] = useState(false)
   const mobile = useMobileOptimization()
   const tourProgress = useTourProgress({ tourState, sequence: tourSequence, hotspots })
@@ -78,6 +79,7 @@ export default function App() {
           <Scene
             ref={sceneRef}
             hotspots={hotspots}
+            fileMode={fileMode}
             onHotspotSelect={selectHotspot}
             loadingManager={manager}
             onTourChange={setTourState}
@@ -95,6 +97,15 @@ export default function App() {
           />
         </Suspense>
       </Canvas>
+      {/* Simple floating control to toggle PLY/SPZ rendering */}
+      <div style={{ position: 'absolute', left: 16, top: 16, zIndex: 40 }}>
+        <button
+          onClick={() => setFileMode(m => (m === 'ply' ? 'spz' : 'ply'))}
+          style={{ padding: '8px 12px', borderRadius: 6, border: 'none', background: '#111', color: '#fff', cursor: 'pointer' }}
+        >
+          {fileMode === 'ply' ? 'View SPZ' : 'View PLY'}
+        </button>
+      </div>
       <InfoPanel hotspot={selectedHotspot} onClose={clearHotspot} />
       <TourProgressBar
         active={tourProgress.active}
