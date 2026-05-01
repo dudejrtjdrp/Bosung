@@ -90,7 +90,24 @@ export default function SplatLOD({ tilesUrl = '/data/tiles.json', maxConcurrent 
         manager?.itemEnd(tilesUrl)
       })
     return () => { mounted = false }
-  }, [tilesUrl, manager])
+  }, [tilesUrl, manager, fileMode])
+
+  // if fileMode changes we should clear any loaded objects and reset state
+  useEffect(() => {
+    // remove any existing objects from scene
+    for (const [id, t] of tilesRef.current.entries()) {
+      if (t && t.object) {
+        scene.remove(t.object)
+        if (t.object.geometry) t.object.geometry.dispose()
+        if (t.object.material) t.object.material.dispose()
+      }
+    }
+    tilesRef.current.clear()
+    loadingSet.current.clear()
+    queue.current = []
+    setTiles([])
+    loggedOnce.current = false
+  }, [fileMode])
 
   useEffect(() => {
     // create worker
