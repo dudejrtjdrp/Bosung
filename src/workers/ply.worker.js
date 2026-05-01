@@ -262,11 +262,35 @@ self.onmessage = async (e) => {
     const headerEnd = new TextDecoder().decode(view.slice(0, Math.min(4096, view.length)))
     const headerText = headerEnd.split('end_header')[0] + 'end_header'
     
-    // Quick validation: first token should start with 'ply'
-    if (!headerEnd.trim().startsWith('ply')) {
-      // dump a small snippet for debugging
+    // Quick validation: find 'ply' signature. it may not be at byte 0 (container wrapper).
+    let plyOffsetInView = -1
+    const headerLower = headerEnd.toLowerCase()
+    if (headerLower.includes('ply')) {
+      plyOffsetInView = headerEnd.toLowerCase().indexOf('ply')
+    } else {
+      // search whole buffer for ASCII 'ply' sequence
+      const needle = [0x70, 0x6c, 0x79] // 'p','l','y'
+      function indexOfSequence(hay, seq) {
+        for (let i = 0; i <= hay.length - seq.length; i++) {
+          let ok = true
+          for (let j = 0; j < seq.length; j++) {
+            if (hay[i + j] !== seq[j]) { ok = false; break }
+          }
+          if (ok) return i
+        }
+        return -1
+      }
+      plyOffsetInView = indexOfSequence(view, needle)
+    }
+
+    if (plyOffsetInView > 0) {
+      console.log(`[Worker] 🔎 Found 'ply' signature at offset ${plyOffsetInView} — slicing buffer to start there`)
+      // slice the processedBuffer from the ply signature forward for parsing
+      processedBuffer = processedBuffer.slice(plyOffsetInView)
+      view = new Uint8Array(processedBuffer)
+    } else if (plyOffsetInView === -1) {
       const snippet = headerEnd.slice(0, 256)
-      throw new Error(`Not a PLY file — header did not start with 'ply'. Snippet: ${snippet.replace(/\n/g, "\\n").slice(0,200)}`)
+      throw new Error(`Not a PLY file — 'ply' signature not found. Snippet: ${snippet.replace(/\n/g, "\\n").slice(0,200)}`)
     }
 
     let parsed
