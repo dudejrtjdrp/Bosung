@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Points, PointMaterial } from '@react-three/drei'
+import pako from 'pako'
 
 // Lightweight SPZ viewer: fetches a .spz (gzip), decompresses, scans for a long
 // run of float triples, and renders them as Points. Uses DecompressionStream if
@@ -26,9 +27,9 @@ function useFetchAndExtract(url) {
           const decompressedStream = new Response(new Blob([ab]).stream().pipeThrough(ds))
           const db = await decompressedStream.arrayBuffer()
           decompressed = new Uint8Array(db)
-        } else if (window.pako && bytes[0] === 0x1f && bytes[1] === 0x8b) {
-          // pako available
-          decompressed = window.pako.ungzip(bytes)
+        } else if (bytes[0] === 0x1f && bytes[1] === 0x8b) {
+          // use bundled pako
+          decompressed = pako.ungzip(bytes)
         } else if (bytes[0] === 0x50 && bytes[1] === 0x4c && bytes[2] === 0x59) {
           // already PLY-like
           decompressed = bytes
