@@ -3,14 +3,21 @@
 
 async function fetchText(url) {
   const res = await fetch(url)
+  if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`)
   const txt = await res.text()
-  return txt
+  return { txt, status: res.status, contentType: res.headers.get('content-type') }
 }
 
 async function fetchArrayBuffer(url) {
   const res = await fetch(url)
+  if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`)
   const buf = await res.arrayBuffer()
-  return buf
+  // Provide diagnostic info if empty or unexpected
+  if (!buf || buf.byteLength === 0) {
+    const ct = res.headers.get('content-type') || 'unknown'
+    throw new Error(`Empty response (0 bytes). HTTP ${res.status}. Content-Type: ${ct}`)
+  }
+  return { buf, status: res.status, contentType: res.headers.get('content-type') }
 }
 
 function parsePLYHeader(text) {
@@ -226,14 +233,22 @@ self.onmessage = async (e) => {
     console.log(`[Worker] 📥 Loading ${id} from ${url}`)
     
     // Fetch file
-    const arrayBuffer = await fetchArrayBuffer(url)
-    console.log(`[Worker] 📄 Fetched ${(arrayBuffer.byteLength / 1024 / 1024).toFixed(2)}MB`)
-    
+    const fetched = await fetchArrayBuffer(url)
+    const arrayBuffer = fetched.buf
+    console.log(`[Worker] 📄 Fetched ${(arrayBuffer.byteLength / 1024 / 1024).toFixed(2)}MB — Content-Type: ${fetched.contentType}`)
+
     // Parse header to check format
     const view = new Uint8Array(arrayBuffer)
     const headerEnd = new TextDecoder().decode(view.slice(0, Math.min(4096, view.length)))
     const headerText = headerEnd.split('end_header')[0] + 'end_header'
     
+    // Quick validation: first token should start with 'ply'
+    if (!headerEnd.trim().startsWith('ply')) {
+      // dump a small snippet for debugging
+      const snippet = headerEnd.slice(0, 256)
+      throw new Error(`Not a PLY file — header did not start with 'ply'. Snippet: ${snippet.replace(/\n/g, "\\n").slice(0,200)}`)
+    }
+
     let parsed
     if (headerText.includes('binary')) {
       console.log('[Worker] 🔄 Parsing BINARY PLY...')
