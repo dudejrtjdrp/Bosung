@@ -237,8 +237,28 @@ self.onmessage = async (e) => {
     const arrayBuffer = fetched.buf
     console.log(`[Worker] 📄 Fetched ${(arrayBuffer.byteLength / 1024 / 1024).toFixed(2)}MB — Content-Type: ${fetched.contentType}`)
 
+    // Handle possible compressed SPZ (gzip) files before parsing header
+    let processedBuffer = arrayBuffer
+    let view = new Uint8Array(processedBuffer)
+    const isGzip = view[0] === 0x1f && view[1] === 0x8b
+    if (isGzip || (typeof url === 'string' && url.toLowerCase().endsWith('.spz'))) {
+      console.log('[Worker] 🗜️ Detected gzip/SPZ — attempting decompression')
+      if (typeof DecompressionStream !== 'undefined') {
+        try {
+          const ds = new DecompressionStream('gzip')
+          const decompressedStream = new Response(processedBuffer).body.pipeThrough(ds)
+          processedBuffer = await new Response(decompressedStream).arrayBuffer()
+          console.log(`[Worker] 🗜️ Decompressed to ${(processedBuffer.byteLength / 1024 / 1024).toFixed(2)}MB`)
+          view = new Uint8Array(processedBuffer)
+        } catch (dErr) {
+          throw new Error(`Failed to decompress gzip/SPZ: ${dErr.message}`)
+        }
+      } else {
+        throw new Error('SPZ/gzip detected but DecompressionStream not available in this environment. Add pako or enable DecompressionStream.')
+      }
+    }
+
     // Parse header to check format
-    const view = new Uint8Array(arrayBuffer)
     const headerEnd = new TextDecoder().decode(view.slice(0, Math.min(4096, view.length)))
     const headerText = headerEnd.split('end_header')[0] + 'end_header'
     
