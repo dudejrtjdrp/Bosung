@@ -2,6 +2,7 @@ import React, { Suspense, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { VRButton } from 'three/examples/jsm/webxr/VRButton'
 import Scene from './components/Scene'
+import SPZViewer from './components/SPZViewer'
 import LoadingOverlay from './components/LoadingOverlay'
 import './components/LoadingOverlay.css'
 import IntroOverlay from './components/IntroOverlay'
@@ -23,6 +24,7 @@ export default function App() {
   const [introFinished, setIntroFinished] = useState(false)
   const [tourState, setTourState] = useState({ active: false, phase: 'idle', currentIndex: -1, currentStep: null, total: tourSequence.length })
   const [fileMode, setFileMode] = useState('ply') // 'ply' or 'spz'
+  const [showSPZViewer, setShowSPZViewer] = useState(false)
   const [xrPresenting, setXrPresenting] = useState(false)
   const mobile = useMobileOptimization()
   const tourProgress = useTourProgress({ tourState, sequence: tourSequence, hotspots })
@@ -98,14 +100,21 @@ export default function App() {
         </Suspense>
       </Canvas>
       {/* Simple floating control to toggle PLY/SPZ rendering */}
-      <div style={{ position: 'absolute', left: 16, top: 16, zIndex: 40 }}>
+      <div style={{ position: 'absolute', left: 16, top: 16, zIndex: 40, display: 'flex', gap: 8 }}>
         <button
           onClick={() => setFileMode(m => (m === 'ply' ? 'spz' : 'ply'))}
           style={{ padding: '8px 12px', borderRadius: 6, border: 'none', background: '#111', color: '#fff', cursor: 'pointer' }}
         >
           {fileMode === 'ply' ? 'View SPZ' : 'View PLY'}
         </button>
+        <button
+          onClick={() => setShowSPZViewer(s => !s)}
+          style={{ padding: '8px 12px', borderRadius: 6, border: 'none', background: '#1a73e8', color: '#fff', cursor: 'pointer' }}
+        >
+          {showSPZViewer ? 'Close SPZ Viewer' : 'Open SPZ Viewer'}
+        </button>
       </div>
+      {showSPZViewer && <SPZViewer url="/models/test.spz" />}
       <InfoPanel hotspot={selectedHotspot} onClose={clearHotspot} />
       <TourProgressBar
         active={tourProgress.active}
