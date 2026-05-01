@@ -259,8 +259,16 @@ self.onmessage = async (e) => {
     }
 
     // Parse header to check format
-    const headerEnd = new TextDecoder().decode(view.slice(0, Math.min(4096, view.length)))
-    const headerText = headerEnd.split('end_header')[0] + 'end_header'
+    // Decode a sufficiently large portion (or full buffer) so 'end_header' is found
+    let headerDecoded
+    try {
+      headerDecoded = new TextDecoder().decode(view)
+    } catch (e) {
+      // Fallback to partial decode if full decode fails for any reason
+      headerDecoded = new TextDecoder().decode(view.slice(0, Math.min(1024 * 1024, view.length)))
+    }
+    const headerIdx = headerDecoded.toLowerCase().indexOf('end_header')
+    const headerText = headerIdx >= 0 ? headerDecoded.slice(0, headerIdx + 'end_header'.length) : headerDecoded
     
     // Quick validation: find 'ply' signature. it may not be at byte 0 (container wrapper).
     let plyOffsetInView = -1
