@@ -15,7 +15,15 @@ function useFetchAndExtract(url) {
     async function run() {
       setState({ status: 'loading', count: 0, positions: null, error: null })
       try {
-        const res = await fetch(url)
+        // force fresh fetch to avoid 304 Not Modified returning no body
+        console.debug('[SPZViewer] fetching', url)
+        let res = await fetch(url, { cache: 'no-store' })
+        if (res.status === 304) {
+          // server responded not-modified (no body). retry with cache-bust param
+          const bust = url.includes('?') ? `${url}&_=${Date.now()}` : `${url}?_=${Date.now()}`
+          console.debug('[SPZViewer] 304 received, retrying with', bust)
+          res = await fetch(bust, { cache: 'no-store' })
+        }
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         const ab = await res.arrayBuffer()
         const bytes = new Uint8Array(ab)
