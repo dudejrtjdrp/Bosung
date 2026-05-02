@@ -257,56 +257,8 @@ self.onmessage = async (e) => {
         throw new Error('SPZ/gzip detected but DecompressionStream not available in this environment. Add pako or enable DecompressionStream.')
       }
     }
-
-    // Parse header to check format
-    // Decode a sufficiently large portion (or full buffer) so 'end_header' is found
-    let headerDecoded
-    try {
-      headerDecoded = new TextDecoder().decode(view)
-    } catch (e) {
-      // Fallback to partial decode if full decode fails for any reason
-      headerDecoded = new TextDecoder().decode(view.slice(0, Math.min(1024 * 1024, view.length)))
-    }
-    const headerIdx = headerDecoded.toLowerCase().indexOf('end_header')
-    let headerText = headerIdx >= 0 ? headerDecoded.slice(0, headerIdx + 'end_header'.length) : headerDecoded
-    
-    // Quick validation: find 'ply' signature. it may not be at byte 0 (container wrapper).
-    let plyOffsetInView = -1
-    const headerLower = headerDecoded.toLowerCase()
-    if (headerLower.includes('ply')) {
-      plyOffsetInView = headerDecoded.toLowerCase().indexOf('ply')
-    } else {
-      // search whole buffer for ASCII 'ply' sequence
-      const needle = [0x70, 0x6c, 0x79] // 'p','l','y'
-      function indexOfSequence(hay, seq) {
-        for (let i = 0; i <= hay.length - seq.length; i++) {
-          let ok = true
-          for (let j = 0; j < seq.length; j++) {
-            if (hay[i + j] !== seq[j]) { ok = false; break }
-          }
-          if (ok) return i
-        }
-        return -1
-      }
-      plyOffsetInView = indexOfSequence(view, needle)
-    }
-
-    if (plyOffsetInView > 0) {
-      console.log(`[Worker] 🔎 Found 'ply' signature at offset ${plyOffsetInView} — slicing buffer to start there`)
-      // slice the processedBuffer from the ply signature forward for parsing
-      processedBuffer = processedBuffer.slice(plyOffsetInView)
-      view = new Uint8Array(processedBuffer)
-      // Re-decode header from sliced buffer
-      try {
-        headerDecoded = new TextDecoder().decode(view)
-      } catch (e) {
-        headerDecoded = new TextDecoder().decode(view.slice(0, Math.min(1024 * 1024, view.length)))
-      }
-      const newHeaderIdx = headerDecoded.toLowerCase().indexOf('end_header')
-      headerText = newHeaderIdx >= 0 ? headerDecoded.slice(0, newHeaderIdx + 'end_header'.length) : headerDecoded
-    } else if (plyOffsetInView === -1) {
-      // No PLY header found — attempt heuristic scan for raw float32 (x,y,z) runs
-      console.log('[Worker] ⚠️ No PLY header found — attempting raw float-run extraction')
+      // For SPZ-only mode: do heuristic scan for float32 (x,y,z) runs and render those
+      console.log('[Worker] 🔎 SPZ-only mode: scanning buffer for float32 runs')
       const dv = new DataView(processedBuffer)
       const totalLen = processedBuffer.byteLength
       const step = 4096
@@ -314,9 +266,7 @@ self.onmessage = async (e) => {
       const blockBytes = blockTriples * 12
       let best = { start: -1, count: 0 }
 
-      function isValid(v) {
-        return Number.isFinite(v) && Math.abs(v) < 1e4
-      }
+      function isValid(v) { return Number.isFinite(v) && Math.abs(v) < 1e4 }
 
       for (let offset = 0; offset + blockBytes < totalLen; offset += step) {
         let ok = 0
@@ -331,10 +281,7 @@ self.onmessage = async (e) => {
         if (ok >= 8) {
           let pos = offset
           const limit = Math.min(offset + blockBytes, totalLen)
-          let cnt = 0
-          let maxCnt = 0
-          let maxStart = -1
-          let startPos = -1
+          let cnt = 0, maxCnt = 0, maxStart = -1, startPos = -1
           while (pos + 12 <= limit) {
             const x = dv.getFloat32(pos, true)
             const y = dv.getFloat32(pos + 4, true)
@@ -355,11 +302,9 @@ self.onmessage = async (e) => {
       }
 
       if (best.count <= 0 || best.start < 0) {
-        const snippet = headerDecoded.slice(0, 256)
-        throw new Error(`Not a PLY file and no float-run found. Snippet: ${snippet.replace(/\n/g, "\\n").slice(0,200)}`)
+        throw new Error('SPZ-only mode: no valid float-run found')
       }
 
-      // Extract runs into typed arrays
       console.log(`[Worker] 🧩 Found float-run at ${best.start} with ${best.count} triples — extracting`)
       const positions = new Float32Array(best.count * 3)
       const colors = new Float32Array(best.count * 3)
@@ -369,25 +314,12 @@ self.onmessage = async (e) => {
         const x = dv.getFloat32(base, true)
         const y = -dv.getFloat32(base + 4, true)
         const z = dv.getFloat32(base + 8, true)
-        positions[i*3] = x
-        positions[i*3 + 1] = y
-        positions[i*3 + 2] = z
-        // default gray color and small radius
+        positions[i*3] = x; positions[i*3+1] = y; positions[i*3+2] = z
         colors[i*3] = 0.8; colors[i*3+1] = 0.8; colors[i*3+2] = 0.8
         radii[i] = 0.03
       }
-
-      const parsed = {
-        positions,
-        colors,
-        radii,
-        count: best.count
-      }
-      console.log(`[Worker] ✅ Extracted ${parsed.count} raw splats from SPZ`)
-      // transfer buffers and exit
-      self.postMessage({ id, success: true, count: parsed.count, positions: parsed.positions.buffer, colors: parsed.colors.buffer, radii: parsed.radii.buffer }, [parsed.positions.buffer, parsed.colors.buffer, parsed.radii.buffer])
+      self.postMessage({ id, success: true, count: best.count, positions: positions.buffer, colors: colors.buffer, radii: radii.buffer }, [positions.buffer, colors.buffer, radii.buffer])
       return
-    }
 
     let parsed
     if (headerText.toLowerCase().includes('binary')) {

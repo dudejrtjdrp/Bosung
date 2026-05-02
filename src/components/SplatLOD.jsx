@@ -21,19 +21,15 @@ const fragmentShader = `
 precision highp float;
 varying vec3 vColor;
 uniform float sharpness;
-uniform float opacity;
+              const mapped = data.map(t => {
 void main() {
-  vec2 uv = gl_PointCoord - vec2(0.5);
-  float r2 = dot(uv, uv) * 4.0;
-  float g = exp(-r2 * sharpness);
-  if (g < 0.01) discard;
-  
-  vec3 color = vColor * 1.3;
-  gl_FragColor = vec4(color, g * opacity);
-}
-`
-
-function createMaterial({ sizeFactor = 1.0, sharpness = 3.0, opacity = 1.0 }) {
+                  // ID-based explicit mapping for SPZ files
+                  const idMap = { cactus: '/models/test.spz' }
+                  if (idMap[copy.id]) {
+                    copy.url = idMap[copy.id]
+                  } else if (copy.url && copy.url.endsWith('.ply')) {
+                    copy.url = copy.url.replace(/\.ply$/, '.spz')
+                  }
   return new THREE.ShaderMaterial({
     vertexShader,
     fragmentShader,
