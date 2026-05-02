@@ -305,8 +305,88 @@ self.onmessage = async (e) => {
       const newHeaderIdx = headerDecoded.toLowerCase().indexOf('end_header')
       headerText = newHeaderIdx >= 0 ? headerDecoded.slice(0, newHeaderIdx + 'end_header'.length) : headerDecoded
     } else if (plyOffsetInView === -1) {
-      const snippet = headerDecoded.slice(0, 256)
-      throw new Error(`Not a PLY file — 'ply' signature not found. Snippet: ${snippet.replace(/\n/g, "\\n").slice(0,200)}`)
+      // No PLY header found — attempt heuristic scan for raw float32 (x,y,z) runs
+      console.log('[Worker] ⚠️ No PLY header found — attempting raw float-run extraction')
+      const dv = new DataView(processedBuffer)
+      const totalLen = processedBuffer.byteLength
+      const step = 4096
+      const blockTriples = 2000
+      const blockBytes = blockTriples * 12
+      let best = { start: -1, count: 0 }
+
+      function isValid(v) {
+        return Number.isFinite(v) && Math.abs(v) < 1e4
+      }
+
+      for (let offset = 0; offset + blockBytes < totalLen; offset += step) {
+        let ok = 0
+        for (let s = 0; s < 10; s++) {
+          const i = offset + Math.floor((s * blockBytes) / 10)
+          if (i + 12 > totalLen) break
+          const a = dv.getFloat32(i, true)
+          const b = dv.getFloat32(i + 4, true)
+          const c = dv.getFloat32(i + 8, true)
+          if (isValid(a) && isValid(b) && isValid(c)) ok++
+        }
+        if (ok >= 8) {
+          let pos = offset
+          const limit = Math.min(offset + blockBytes, totalLen)
+          let cnt = 0
+          let maxCnt = 0
+          let maxStart = -1
+          let startPos = -1
+          while (pos + 12 <= limit) {
+            const x = dv.getFloat32(pos, true)
+            const y = dv.getFloat32(pos + 4, true)
+            const z = dv.getFloat32(pos + 8, true)
+            if (isValid(x) && isValid(y) && isValid(z)) {
+              if (cnt === 0) startPos = pos
+              cnt++
+              pos += 12
+            } else {
+              if (cnt > maxCnt) { maxCnt = cnt; maxStart = startPos }
+              cnt = 0
+              pos += 12
+            }
+          }
+          if (cnt > maxCnt) { maxCnt = cnt; maxStart = startPos }
+          if (maxCnt > best.count) best = { start: maxStart, count: maxCnt }
+        }
+      }
+
+      if (best.count <= 0 || best.start < 0) {
+        const snippet = headerDecoded.slice(0, 256)
+        throw new Error(`Not a PLY file and no float-run found. Snippet: ${snippet.replace(/\n/g, "\\n").slice(0,200)}`)
+      }
+
+      // Extract runs into typed arrays
+      console.log(`[Worker] 🧩 Found float-run at ${best.start} with ${best.count} triples — extracting`)
+      const positions = new Float32Array(best.count * 3)
+      const colors = new Float32Array(best.count * 3)
+      const radii = new Float32Array(best.count)
+      for (let i = 0; i < best.count; i++) {
+        const base = best.start + i * 12
+        const x = dv.getFloat32(base, true)
+        const y = -dv.getFloat32(base + 4, true)
+        const z = dv.getFloat32(base + 8, true)
+        positions[i*3] = x
+        positions[i*3 + 1] = y
+        positions[i*3 + 2] = z
+        // default gray color and small radius
+        colors[i*3] = 0.8; colors[i*3+1] = 0.8; colors[i*3+2] = 0.8
+        radii[i] = 0.03
+      }
+
+      const parsed = {
+        positions,
+        colors,
+        radii,
+        count: best.count
+      }
+      console.log(`[Worker] ✅ Extracted ${parsed.count} raw splats from SPZ`)
+      // transfer buffers and exit
+      self.postMessage({ id, success: true, count: parsed.count, positions: parsed.positions.buffer, colors: parsed.colors.buffer, radii: parsed.radii.buffer }, [parsed.positions.buffer, parsed.colors.buffer, parsed.radii.buffer])
+      return
     }
 
     let parsed

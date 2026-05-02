@@ -75,13 +75,14 @@ export default function SplatLOD({ tilesUrl = '/data/tiles.json', maxConcurrent 
             if (fileMode === 'spz') {
               // ID-based explicit mapping for SPZ files (fallback to extension swap)
               const idMap = {
-                // Prefer extracted PLY from SPZ for rendering
-                cactus: '/models/extracted_from_test.ply'
+                cactus: '/models/test.spz'
               }
-              if (idMap[copy.id]) {
-                copy.url = idMap[copy.id]
-              } else if (copy.url && copy.url.endsWith('.ply')) {
-                copy.url = copy.url.replace(/\.ply$/, '.spz')
+              if (fileMode === 'spz') {
+                if (idMap[copy.id]) {
+                  copy.url = idMap[copy.id]
+                } else if (copy.url && copy.url.endsWith('.ply')) {
+                  copy.url = copy.url.replace(/\.ply$/, '.spz')
+                }
               }
             }
             return copy
