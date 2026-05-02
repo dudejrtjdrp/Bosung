@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useThree } from '@react-three/fiber'
 import { Points, PointMaterial, OrbitControls } from '@react-three/drei'
 import pako from 'pako'
 
@@ -151,7 +151,44 @@ export default function SPZViewer({ url = '/models/test.spz' }) {
         <pointLight position={[10, 10, 10]} />
         {positions && <PointsMesh positions={positions} />}
         <OrbitControls makeDefault />
+        {positions && <CameraFit positions={positions} />}
       </Canvas>
     </div>
   )
+}
+
+function CameraFit({ positions }) {
+  const { camera, controls } = useThree()
+  useEffect(() => {
+    if (!positions) return
+    const count = positions.length / 3
+    let minX = Infinity, minY = Infinity, minZ = Infinity
+    let maxX = -Infinity, maxY = -Infinity, maxZ = -Infinity
+    for (let i = 0; i < count; i++) {
+      const x = positions[i * 3]
+      const y = positions[i * 3 + 1]
+      const z = positions[i * 3 + 2]
+      if (x < minX) minX = x
+      if (y < minY) minY = y
+      if (z < minZ) minZ = z
+      if (x > maxX) maxX = x
+      if (y > maxY) maxY = y
+      if (z > maxZ) maxZ = z
+    }
+    const cx = (minX + maxX) / 2
+    const cy = (minY + maxY) / 2
+    const cz = (minZ + maxZ) / 2
+    const dx = maxX - minX
+    const dy = maxY - minY
+    const dz = maxZ - minZ
+    const radius = Math.max(dx, dy, dz) * 0.5
+    const distance = Math.max(1, radius * 3)
+    camera.position.set(cx, cy, cz + distance)
+    camera.lookAt(cx, cy, cz)
+    if (controls) {
+      controls.target.set(cx, cy, cz)
+      if (typeof controls.update === 'function') controls.update()
+    }
+  }, [positions, camera, controls])
+  return null
 }
